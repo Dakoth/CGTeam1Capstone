@@ -2,7 +2,7 @@ import psycopg2
 from accounts.models.address import Address
 
 class AddressRepository():
-    DB_NAME = "Address"
+    DB_NAME = "accounts"
     DB_USER = "postgres"
     DB_PASS = "password123"
     DB_HOST = "localhost"
@@ -22,8 +22,3 @@ class AddressRepository():
 
     def get_by_id(self, id):
         pass
-
-if __name__ == '__main__':
-    addy = Address(1, '1234 saint str', 'irvine', 'ca', 'idek')
-    repo = AddressRepository()
-    repo.insert(addy)
