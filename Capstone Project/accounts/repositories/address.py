@@ -21,4 +21,8 @@ class AddressRepository():
         self.conn.close()
 
     def get_by_id(self, id):
-        pass
+        self.cursor.execute("SELECT id, address, city, state, zipcode FROM Address WHERE id=?;", [id])
+        row = self.cursor.fetchone()
+        if row:
+            return Address(id=row[0], address=row[1], city=row[2], state=row[3], zip_code=row[4])
+        return None
