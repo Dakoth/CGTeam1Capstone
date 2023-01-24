@@ -1,11 +1,10 @@
-from re import S
 from pydantic import BaseModel
 from accounts.models.customer import Customer
 
-class Address(BaseModel):
+class Account(BaseModel):
     id: int
     account_number: str
-    customer_id: Customer.id
+    customer_id: Customer
     current_balance: float
 
 def __eq__(self, other):

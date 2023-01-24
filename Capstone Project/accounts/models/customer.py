@@ -5,7 +5,7 @@ class Customer(BaseModel):
     id: int
     first_name: str
     last_name: str
-    address_id: Address.id
+    address_id: Address
     email: str
 
 def __eq__(self, other):
