@@ -6,23 +6,48 @@ class AddressRepository():
     DB_USER = "postgres"
     DB_PASS = "password123"
     DB_HOST = "localhost"
-    DB_PORT = "5432"
-
-    conn = psycopg2.connect(database=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT)
-    print("Connected to DB")
-
-    #Create cursor to allow for query execution
-    cursor = conn.cursor()
 
     def insert(self, address: Address):
-        self.cursor.execute('INSERT INTO Address (id, address, city, state, zipcode) \
-        VALUES (?, ?, ?, ?, ?)', [address.id, address.address, address.city, address.state, address.zip_code])
-        self.conn.commit()
-        self.conn.close()
+        with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                INSERT INTO public."Address" (address, city, state, zipcode) 
+                VALUES (%(address)s, %(city)s, %(state)s, %(zip)s)
+                RETURNING id
+                """, {'address': address.address, 'city': address.city, 'state': address.state, 'zip': address.zip_code})
+                address.id = cursor.fetchone()[0]
+                return address
 
     def get_by_id(self, id):
-        self.cursor.execute("SELECT id, address, city, state, zipcode FROM Address WHERE id=?;", [id])
-        row = self.cursor.fetchone()
-        if row:
-            return Address(id=row[0], address=row[1], city=row[2], state=row[3], zip_code=row[4])
-        return None
+        conn = psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS)
+        cursor = conn.cursor()
+        cursor.execute("""SELECT * FROM public."Address" WHERE id=%(id)s;""", {'id': id})
+        row = cursor.fetchone()
+        return Address(id=row[0], address=row[1], city=row[2], state=row[3], zip_code=row[4])
+    
+    def get_all(self):
+        results = []
+        conn = psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS)
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT * FROM public."Address"
+        """)
+        rows = cursor.fetchall()
+        for row in rows:
+            results.append(Address(id=row[0], address=row[1], city=row[2], state=row[3], zip_code=row[4]))
+        return results
+    
+    def update(self, address: Address):
+        conn = psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS)
+        cursor = conn.cursor()
+        cursor.execute("""
+        UPDATE public."Address" SET address=%(address)s, city=%(city)s, state=%(state)s, zip_code=%(zip)s WHERE id=%(id)s
+        """, {'id': address.id, 'address': address.address, 'city': address.city, 'state': address.state, 'zip': address.zip_code})
+        return self.get_by_id(address.id)
+    
+    def delete(self, id):
+        conn = psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS)
+        cursor = conn.cursor()
+        cursor.execute("""
+        DELETE FROM public."Address" WHERE id=%(id)s
+        """, {'id': id})
