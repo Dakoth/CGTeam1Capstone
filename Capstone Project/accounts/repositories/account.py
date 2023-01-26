@@ -13,7 +13,7 @@ class AccountRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                INSERT INTO account("AccountNumber", "CustomerID", CurrentBalance)
+                INSERT INTO account("accountnumber", "customerid", currentbalance)
                 VALUES (%(account_num)s, %(customer_id)s, %(balance)s)
                 RETURNING ID
                 """, {'account_num': account.account_number, 'customer_id': account.customer.id, 'balance': account.current_balance})
@@ -44,7 +44,7 @@ class AccountRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                SELECT * FROM account WHERE AccountNumber=%(num)s
+                SELECT * FROM account WHERE accountnumber=%(num)s
                 """, {'num': num})
                 row = cursor.fetchone()
                 if row:
@@ -62,9 +62,7 @@ class AccountRepository():
                 """)
                 rows = cursor.fetchall()
                 for row in rows:
-                    addy = Address(id=None, address='', city='', state='', zip_code='')
-                    cust = Customer(id=row[2], first_name='', last_name='', address=addy, email='')
-                    results.append(Account(id=row[0], account_number=row[1], customer=cust, current_balance=row[3]))
+                    results.append(Account(id=row[0], account_number=row[1], customer=row[2], current_balance=row[3]))
                 return results
 
     def update(self, account: Account):

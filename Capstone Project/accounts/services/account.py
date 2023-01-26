@@ -20,7 +20,7 @@ class AccountService():
         #customer = self.product_respository.get_by_id(account.customer.id)
         #account.customer = customer
         #account.total = account.customer.unit_cost * account.quantity
-        return self.order_repository.insert(account)
+        return self.account_repository.insert(account)
 
     def get_all_accounts (self) -> 'list [Account]':
         accounts = self.account_repository.get_all()
