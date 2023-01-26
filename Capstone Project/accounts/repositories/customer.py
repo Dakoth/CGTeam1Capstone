@@ -12,9 +12,9 @@ class CustomerRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                INSERT INTO customer(FirstName, LastName, AddressID, Email) VALUES
+                INSERT INTO public."Customer"(firstName, lastName, "addressID", email) VALUES
                 (%(first)s, %(last)s, %(address)s, %(email)s)
-                RETURNING ID
+                RETURNING id
                 """, {'first': customer.first_name, 'last': customer.last_name, 'address': customer.address.id})
                 customer.id = cursor.fetchone()[0]
                 return customer
@@ -23,14 +23,14 @@ class CustomerRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                DELETE FROM customer WHERE ID=%(id)s
+                DELETE FROM public."Customer" WHERE id=%(id)s
                 """, {'id': id})
     
     def get_by_id(self, id):
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                SELECT * FROM customer WHERE ID=%(id)s
+                SELECT * FROM public."Customer" WHERE id=%(id)s
                 """, {'id': id})
                 row = cursor.fetchone()
                 if row:
