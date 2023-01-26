@@ -11,8 +11,8 @@ class CustomerRepository():
     def insert(self, customer: Customer):
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
-                cursor.execute("""
-                INSERT INTO public."Customer"(firstName, lastName, "addressID", email) VALUES
+                cursor.execute(""" 
+                INSERT INTO customer(FirstName, LastName, AddressID, Email) VALUES
                 (%(first)s, %(last)s, %(address)s, %(email)s)
                 RETURNING id
                 """, {'first': customer.first_name, 'last': customer.last_name, 'address': customer.address.id})
