@@ -4,7 +4,7 @@ from accounts.models.customer import Customer
 from accounts.models.account import Account
 
 class AccountRepository():
-    DB_NAME = "accounts"
+    DB_NAME = "capstone"
     DB_USER = "postgres"
     DB_PASS = "password123"
     DB_HOST = "localhost"
@@ -13,9 +13,9 @@ class AccountRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                INSERT INTO public."Account"(id, "accountNumber", "customerID", balance)
+                INSERT INTO account("AccountNumber", "CustomerID", CurrentBalance)
                 VALUES (%(account_num)s, %(customer_id)s, %(balance)s)
-                RETURNING id
+                RETURNING ID
                 """, {'account_num': account.account_number, 'customer_id': account.customer.id, 'balance': account.current_balance})
                 account.id = cursor.fetchone()[0]
                 return account
@@ -24,17 +24,54 @@ class AccountRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                DELETE FROM public."Account" WHERE id=%(id)s
+                DELETE FROM account WHERE ID=%(id)s
                 """, {'id': id})
 
     def get_by_id(self, id):
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                SELECT * FROM public."Account" WHERE id=%(id)s
+                SELECT * FROM account WHERE ID=%(id)s
                 """, {'id': id})
                 row = cursor.fetchone()
                 if row:
-                    cust = Customer(id=row[2], first_name='', last_name='', address=None, email='')
+                    addy = Address(id=None, address='', city='', state='', zip_code='')
+                    cust = Customer(id=row[2], first_name='', last_name='', address=addy, email='')
                     return Account(id=row[0], account_number=row[1], customer=cust, current_balance=row[3])
                 return None
+    
+    def get_by_number(self, num):
+        with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM account WHERE AccountNumber=%(num)s
+                """, {'num': num})
+                row = cursor.fetchone()
+                if row:
+                    addy = Address(id=None, address='', city='', state='', zip_code='')
+                    cust = Customer(id=row[2], first_name='', last_name='', address=addy, email='')
+                    return Account(id=row[0], account_number=row[1], customer=cust, current_balance=row[3])
+                return None
+
+    def get_all(self):
+        results = []
+        with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM account
+                """)
+                rows = cursor.fetchall()
+                for row in rows:
+                    addy = Address(id=None, address='', city='', state='', zip_code='')
+                    cust = Customer(id=row[2], first_name='', last_name='', address=addy, email='')
+                    results.append(Account(id=row[0], account_number=row[1], customer=cust, current_balance=row[3]))
+                return results
+
+    def update(self, account: Account):
+        with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                UPDATE account
+                SET AccountNumber=%(num)s, CustomerID=%(custid)s, CurrentBalance=%(balance)s
+                WHERE ID=%(id)s
+                """, {'id': account.id, 'num': account.account_number, 'custid': account.customer.id, 'balance': account.current_balance})
