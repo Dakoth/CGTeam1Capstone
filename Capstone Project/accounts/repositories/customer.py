@@ -3,7 +3,7 @@ from accounts.models.address import Address
 from accounts.models.customer import Customer
 
 class CustomerRepository():
-    DB_NAME = "accounts"
+    DB_NAME = "capstone"
     DB_USER = "postgres"
     DB_PASS = "password123"
     DB_HOST = "localhost"
@@ -12,9 +12,9 @@ class CustomerRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                INSERT INTO public."Customer"(firstName, lastName, "addressID", email) VALUES
+                INSERT INTO customer(FirstName, LastName, AddressID, Email) VALUES
                 (%(first)s, %(last)s, %(address)s, %(email)s)
-                RETURNING id
+                RETURNING ID
                 """, {'first': customer.first_name, 'last': customer.last_name, 'address': customer.address.id})
                 customer.id = cursor.fetchone()[0]
                 return customer
@@ -23,14 +23,14 @@ class CustomerRepository():
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                DELETE FROM public."Customer" WHERE id=%(id)s
+                DELETE FROM customer WHERE ID=%(id)s
                 """, {'id': id})
     
     def get_by_id(self, id):
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                SELECT * FROM public."Customer" WHERE id=%(id)s
+                SELECT * FROM customer WHERE ID=%(id)s
                 """, {'id': id})
                 row = cursor.fetchone()
                 if row:
