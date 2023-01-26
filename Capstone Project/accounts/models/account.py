@@ -4,7 +4,7 @@ from accounts.models.customer import Customer
 class Account(BaseModel):
     id: int
     account_number: str
-    customer_id: Customer
+    customer: Customer
     current_balance: float
 
 def __eq__(self, other):
