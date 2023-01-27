@@ -6,8 +6,9 @@ from accounts.models.account import Account
 class AccountRepository():
     DB_NAME = "capstone"
     DB_USER = "postgres"
-    DB_PASS = "password123"
+    DB_PASS = "password"
     DB_HOST = "capstonecohort1team1db.ckokfd9swhyk.us-west-2.rds.amazonaws.com"
+    #DB_HOST = "localhost"
 
     def insert(self, account: Account):
         with psycopg2.connect(host=self.DB_HOST, database=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS) as conn:
