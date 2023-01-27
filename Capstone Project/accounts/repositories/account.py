@@ -62,7 +62,9 @@ class AccountRepository():
                 """)
                 rows = cursor.fetchall()
                 for row in rows:
-                    results.append(Account(id=row[0], account_number=row[1], customer=row[2], current_balance=row[3]))
+                    addy = Address(id=0, address='', city='', state='', zip_code='')
+                    cust = Customer(id=row[2], first_name='', last_name='', address=addy, email='')
+                    results.append(Account(id=row[0], account_number=row[1], customer=cust, current_balance=row[3]))
                 return results
 
     def update(self, account: Account):
